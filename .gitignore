@@ -1,0 +1,5 @@
+*.dSYM
+bazel*
+compile_commands.json
+.cache
+external
