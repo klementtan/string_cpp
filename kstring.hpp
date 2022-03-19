@@ -11,11 +11,10 @@ class ref_count {};
 /**
  * Memory layout for the different type of strings
  *
- * byte     00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22
- * 23 small:   [value0 value22] [l] medium:  [     pointer         ] [ len ] [
- * cap          ] large:   [     cb_pointer      ] [          len        ] [ cap
- * ]
- *
+ * byte     [00] [01] [02] [03] [04] [05] [06] [07] [08] [09] [10] [11] [12] [13] [14] [15] [16] [17] [18] [19] [20] [21] [22] [23]
+ * small:   [value0                                                                                                   value22] [l ] 
+ * medium:  [pointer                              ] [len                                  ] [cap                                  ] 
+ * large:   [cb_pointer                           ] [len                                  ] [cap                                  ]
  */
 
 template <class Alloc> class basic_kstring {
