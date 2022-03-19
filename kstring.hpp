@@ -371,6 +371,10 @@ private:
   void construct_basic_kstring(const char *s, size_type len, size_type cap,
                                const allocator_type &a, LongTag);
 };
+template <typename Alloc = std::allocator<char>>
+using kstring = basic_kstring<Alloc>;
+
+/** Constructors ***********************************************************/
 
 template <class Alloc> basic_kstring<Alloc>::~basic_kstring() {
   auto cat = category();
@@ -450,6 +454,24 @@ template <class Alloc> uint8_t &basic_kstring<Alloc>::msbyte() {
   return *reinterpret_cast<uint8_t *>(this + 23);
 }
 
+/** Public Functions *******************************************************/
+
+template <class Alloc>
+typename basic_kstring<Alloc>::size_type
+basic_kstring<Alloc>::length() const noexcept {
+  switch (category()) {
+  case Category::kShort:
+    return m_members.m_short.m_len ^ (1 << 7);
+  case Category::kMid:
+    return m_members.m_mid.m_len;
+  case Category::kLong:
+    return m_members.m_long.m_len;
+  }
+}
+
+
+/** Helpers ****************************************************************/
+
 template <class Alloc> void basic_kstring<Alloc>::print_mem() const {
   uint8_t mem[24];
   memcpy(mem, this, 24);
@@ -476,19 +498,6 @@ basic_kstring<Alloc>::gen_capacity(size_type len) {
 
 template <class Alloc> bool basic_kstring<Alloc>::msb() const {
   return (cmsbyte() & (static_cast<uint8_t>(1 << 7)));
-}
-
-template <class Alloc>
-typename basic_kstring<Alloc>::size_type
-basic_kstring<Alloc>::length() const noexcept {
-  switch (category()) {
-  case Category::kShort:
-    return m_members.m_short.m_len ^ (1 << 7);
-  case Category::kMid:
-    return m_members.m_mid.m_len;
-  case Category::kLong:
-    return m_members.m_long.m_len;
-  }
 }
 
 template <class Alloc>
@@ -556,32 +565,22 @@ basic_kstring<Alloc>::get_category(size_type cap) {
   }
 }
 
-template <typename Alloc = std::allocator<char>>
-using kstring = basic_kstring<Alloc>;
-} // namespace k
 
-namespace std {
-template <class Alloc>
-void swap(typename k::basic_kstring<Alloc>::ControlBlock &a,
-          typename k::basic_kstring<Alloc>::ControlBlock &b) {
-  std::swap(a.m_ptr, b.m_ptr);
-  std::swap(a.m_count, b.m_count);
-}
-} // namespace std
+/** Control Block **********************************************************/
 
 template <class Alloc>
-k::basic_kstring<Alloc>::ControlBlock::ControlBlock(pointer p, size_type len)
+basic_kstring<Alloc>::ControlBlock::ControlBlock(pointer p, size_type len)
     : m_ptr{p}, m_count{0}, m_cap{len} {
   acquire();
 }
 
-template <class Alloc> k::basic_kstring<Alloc>::ControlBlock::~ControlBlock() {
+template <class Alloc> basic_kstring<Alloc>::ControlBlock::~ControlBlock() {
   assert(m_count == 0);
   assert(m_ptr);
   allocator_type().deallocate(m_ptr, m_cap);
 }
 
-template <class Alloc> void k::basic_kstring<Alloc>::ControlBlock::acquire() {
+template <class Alloc> void basic_kstring<Alloc>::ControlBlock::acquire() {
   m_count++;
 }
 
@@ -591,9 +590,10 @@ k::basic_kstring<Alloc>::ControlBlock::get() {
   return m_ptr;
 }
 
-template <class Alloc> void k::basic_kstring<Alloc>::ControlBlock::release() {
+template <class Alloc> void basic_kstring<Alloc>::ControlBlock::release() {
   m_count--;
   if (m_count == 0) {
     delete this;
   }
 }
+} // namespace k

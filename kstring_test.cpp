@@ -1,8 +1,6 @@
 #include "kstring.hpp"
 #include <gtest/gtest.h>
 
-constexpr size_t cb_size = 24;
-
 template <typename T> class kallocator : public std::allocator<T> {
 public:
   typedef size_t size_type;
