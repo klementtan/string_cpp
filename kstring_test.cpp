@@ -49,6 +49,7 @@ TEST(Kstring, Constructors) {
   {
     kallocator::reset_stats();
     k::kstring<kallocator> ss("0123456789012345678901");
+    ASSERT_STREQ(ss.c_str(), "0123456789012345678901");
     ASSERT_EQ(ss.length(), 22);
     ASSERT_EQ(ss.capacity(), 23);
   }
@@ -59,6 +60,7 @@ TEST(Kstring, Constructors) {
   {
     kallocator::reset_stats();
     k::kstring<kallocator> ms("012345678901234567890123456789");
+    ASSERT_STREQ(ms.c_str(), "012345678901234567890123456789");
     ASSERT_EQ(ms.length(), 30);
     ASSERT_EQ(ms.capacity(), 32);
   }
@@ -69,6 +71,7 @@ TEST(Kstring, Constructors) {
     kallocator::reset_stats();
     std::string long_str(300, 'c');
     k::kstring<kallocator> ls(long_str.c_str());
+    ASSERT_STREQ(ls.c_str(), long_str.c_str());
     ASSERT_EQ(ls.length(), 300);
     ASSERT_EQ(ls.capacity(), 512);
   }

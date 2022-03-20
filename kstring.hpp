@@ -2,8 +2,9 @@
 #include <cstdint>
 #include <iostream>
 #include <memory>
-#include <span>
 #include <string>
+
+
 namespace k {
 
 class ref_count {};
@@ -88,7 +89,7 @@ public:
   /* const_reverse_iterator crbegin() const noexcept; */
   /* const_reverse_iterator crend() const noexcept; */
 
-  /* size_type size() const noexcept; */
+  size_type size() const noexcept;
   size_type length() const noexcept;
   /* size_type max_size() const noexcept; */
   size_type capacity() const noexcept;
@@ -205,7 +206,7 @@ public:
   /*         allocator_type>::propagate_on_container_swap::value || */
   /*     std::allocator_traits<allocator_type>::is_always_equal::value); // C++17 */
 
-  /* const char *c_str() const noexcept; */
+  const char *c_str() const noexcept;
   /* const char *data() const noexcept; */
   /* char *data() noexcept; // C++17 */
 
@@ -312,7 +313,7 @@ private:
 
     void acquire();
     void release();
-    pointer get();
+    pointer get() const;
   };
 
   struct Short {
@@ -462,6 +463,24 @@ template <class Alloc> uint8_t &basic_kstring<Alloc>::msbyte() {
 
 /** Public Functions *******************************************************/
 
+template<class Alloc>
+const char* basic_kstring<Alloc>::c_str() const noexcept {
+  switch(category())  {
+    case Category::kShort:
+      return m_members.m_short.m_data;
+    case Category::kMid:
+      return m_members.m_mid.m_ptr;
+    case Category::kLong:
+      return m_members.m_long.m_cbptr->get();
+  }
+}
+
+template <class Alloc>
+typename basic_kstring<Alloc>::size_type
+basic_kstring<Alloc>::size() const noexcept {
+  return length();
+}
+
 template <class Alloc>
 typename basic_kstring<Alloc>::size_type
 basic_kstring<Alloc>::length() const noexcept {
@@ -595,7 +614,7 @@ template <class Alloc> void basic_kstring<Alloc>::ControlBlock::acquire() {
 
 template <class Alloc>
 typename k::basic_kstring<Alloc>::pointer
-k::basic_kstring<Alloc>::ControlBlock::get() {
+k::basic_kstring<Alloc>::ControlBlock::get() const {
   return m_ptr;
 }
 
