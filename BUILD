@@ -5,17 +5,6 @@ cc_library(
   hdrs = ["kstring.hpp"]
 )
 
-
-refresh_compile_commands(
-    name = "refresh_compile_commands",
-
-    # Specify the targets of interest.
-    # For example, specify a dict of targets and their arguments:
-    targets = {
-      "//:kstring_test": "--cxxopt='-std=c++20'"
-    },
-)
-
 cc_test(
   name = "kstring_test",
   size = "small",
