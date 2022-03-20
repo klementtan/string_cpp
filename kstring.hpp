@@ -298,10 +298,11 @@ private:
   class ControlBlock {
     pointer m_ptr;
     std::atomic<size_type> m_count;
+    size_type m_len;
     size_type m_cap;
 
   public:
-    ControlBlock(pointer p, size_type len);
+    ControlBlock(pointer p, size_type len, size_type cap);
 
     ControlBlock(const ControlBlock &) = delete;
     ControlBlock &operator=(const ControlBlock &) = delete;
@@ -378,7 +379,12 @@ using kstring = basic_kstring<Alloc>;
 
 template <class Alloc> basic_kstring<Alloc>::~basic_kstring() {
   auto cat = category();
-  if (cat == Category::kMid) {
+  if (cat == Category::kShort) {
+    std::destroy_at(m_members.m_short.m_data);
+  } else if (cat == Category::kMid) {
+    for (size_type i = 0; i < m_members.m_mid.m_len; i++) {
+      std::destroy_at(m_members.m_mid.m_ptr + i);
+    }
     allocator_type().deallocate(m_members.m_mid.m_ptr, m_members.m_mid.m_cap);
   } else if (cat == Category::kLong) {
     m_members.m_long.m_cbptr->release();
@@ -426,9 +432,9 @@ void basic_kstring<Alloc>::construct_basic_kstring(const char *s, size_type len,
 
   // use placement new to construct each character at the allocated memory
   for (size_type i = 0; i < len; i++) {
-    new (m_members.m_mid.m_ptr + i) char{s[i]};
+    std::construct_at(m_members.m_mid.m_ptr + i, s[i]);
   }
-  new (m_members.m_mid.m_ptr + len) char{'\0'};
+    std::construct_at(m_members.m_mid.m_ptr + len, '\0');
 
   set_length(len, Category::kMid);
   set_capacity(cap);
@@ -442,12 +448,12 @@ void basic_kstring<Alloc>::construct_basic_kstring(const char *s, size_type len,
   assert(len < cap);
   auto ptr = allocator_type().allocate(cap);
   for (size_type i = 0; i < len; i++) {
-    new (ptr + i) char{s[i]};
+    std::construct_at(ptr + i, s[i]);
   }
-  new (ptr + len) char{'\0'};
+  std::construct_at(ptr + len, '\0');
   set_length(len, Category::kLong);
   set_capacity(cap);
-  m_members.m_long.m_cbptr = new ControlBlock(ptr, cap);
+  m_members.m_long.m_cbptr = new ControlBlock(ptr, len + 1,cap);
 }
 
 template <class Alloc> uint8_t &basic_kstring<Alloc>::msbyte() {
@@ -569,14 +575,17 @@ basic_kstring<Alloc>::get_category(size_type cap) {
 /** Control Block **********************************************************/
 
 template <class Alloc>
-basic_kstring<Alloc>::ControlBlock::ControlBlock(pointer p, size_type len)
-    : m_ptr{p}, m_count{0}, m_cap{len} {
+basic_kstring<Alloc>::ControlBlock::ControlBlock(pointer p, size_type len,size_type cap)
+    : m_ptr{p}, m_count{0}, m_len{len},m_cap{cap} {
   acquire();
 }
 
 template <class Alloc> basic_kstring<Alloc>::ControlBlock::~ControlBlock() {
   assert(m_count == 0);
   assert(m_ptr);
+  for (size_type i = 0; i < m_len; i++) {
+    std::destroy_at(m_ptr + i);
+  }
   allocator_type().deallocate(m_ptr, m_cap);
 }
 
