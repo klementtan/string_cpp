@@ -132,7 +132,7 @@ TEST(Kstring, CopyConstructors) {
   ASSERT_EQ(kallocator::deallocate_size, 512);
 }
 
-TEST(Kstring, AccessChar) {
+TEST(Kstring, AccessCharOperator) {
   using kallocator = kallocator<char>;
   {
     kallocator::reset_stats();
@@ -148,5 +148,15 @@ TEST(Kstring, AccessChar) {
   ASSERT_EQ(kallocator::allocate_size, 1024);
   ASSERT_EQ(kallocator::deallocate_size, 1024);
 
+  {
+    kallocator::reset_stats();
+    std::string long_str(300, 'c');
+    k::kstring<kallocator> ls1(long_str.c_str());
+    const auto ls2{ls1};
+    char c = ls2[150];
+    ASSERT_EQ(c, 'c');
+  }
+  ASSERT_EQ(kallocator::allocate_size, 512);
+  ASSERT_EQ(kallocator::deallocate_size, 512);
 
 }
