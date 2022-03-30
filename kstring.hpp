@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 
-
 namespace k {
 
 class ref_count {};
@@ -12,10 +11,10 @@ class ref_count {};
 /**
  * Memory layout for the different type of strings
  *
- * byte     [00] [01] [02] [03] [04] [05] [06] [07] [08] [09] [10] [11] [12] [13] [14] [15] [16] [17] [18] [19] [20] [21] [22] [23]
- * small:   [value0                                                                                                   value22] [l ] 
- * medium:  [pointer                              ] [len                                  ] [cap                                  ] 
- * large:   [cb_pointer                           ] [len                                  ] [cap                                  ]
+ * byte     [00] [01] [02] [03] [04] [05] [06] [07] [08] [09] [10] [11] [12]
+ * [13] [14] [15] [16] [17] [18] [19] [20] [21] [22] [23] small:   [value0
+ * value22] [l ] medium:  [pointer                              ] [len ] [cap ]
+ * large:   [cb_pointer                           ] [len ] [cap ]
  */
 
 template <class Alloc> class basic_kstring {
@@ -25,8 +24,8 @@ public:
   typedef std::allocator_traits<allocator_type> __alloc_traits;
   typedef typename __alloc_traits::size_type size_type;
   /* typedef typename __alloc_traits::difference_type difference_type; */
-  /* typedef typename __alloc_traits::reference reference; */
-  /* typedef typename __alloc_traits::const_reference const_reference; */
+  typedef typename __alloc_traits::reference reference;
+  typedef typename __alloc_traits::const_reference const_reference;
   typedef typename __alloc_traits::pointer pointer;
   typedef typename __alloc_traits::const_pointer const_pointer;
   typedef pointer iterator;
@@ -39,7 +38,7 @@ public:
   /* basic_kstring() noexcept( */
   /*     std::is_nothrow_default_constructible<allocator_type>::value); */
   /* explicit basic_kstring(const allocator_type &a); */
-  /* basic_kstring(const basic_kstring &str); */
+  basic_kstring(const basic_kstring &str);
   /* basic_kstring(basic_kstring &&str) noexcept( */
   /*     std::is_nothrow_move_constructible<allocator_type>::value); */
   /* basic_kstring(const basic_kstring &str, size_type pos, */
@@ -102,8 +101,8 @@ public:
   /* void clear() noexcept; */
   /* bool empty() const noexcept; */
 
-  /* const_reference operator[](size_type pos) const; */
-  /* reference operator[](size_type pos); */
+  const_reference operator[](size_type pos) const;
+  reference operator[](size_type pos);
 
   /* const_reference at(size_type n) const; */
   /* reference at(size_type n); */
@@ -119,7 +118,8 @@ public:
   /* basic_kstring &append(const basic_kstring &str, size_type pos, */
   /*                       size_type n = npos); // C++14 */
   /* template <class T> */
-  /* basic_kstring &append(const T &t, size_type pos, size_type n = npos); // C++17 */
+  /* basic_kstring &append(const T &t, size_type pos, size_type n = npos); //
+   * C++17 */
   /* basic_kstring &append(const char *s, size_type n); */
   /* basic_kstring &append(const char *s); */
   /* basic_kstring &append(size_type n, char c); */
@@ -140,7 +140,8 @@ public:
   /* basic_kstring &assign(const basic_kstring &str, size_type pos, */
   /*                       size_type n = npos); // C++14 */
   /* template <class T> */
-  /* basic_kstring &assign(const T &t, size_type pos, size_type n = npos); // C++17 */
+  /* basic_kstring &assign(const T &t, size_type pos, size_type n = npos); //
+   * C++17 */
   /* basic_kstring &assign(const char *s, size_type n); */
   /* basic_kstring &assign(const char *s); */
   /* basic_kstring &assign(size_type n, char c); */
@@ -162,7 +163,8 @@ public:
   /* iterator insert(const_iterator p, char c); */
   /* iterator insert(const_iterator p, size_type n, char c); */
   /* template <class InputIterator> */
-  /* iterator insert(const_iterator p, InputIterator first, InputIterator last); */
+  /* iterator insert(const_iterator p, InputIterator first, InputIterator last);
+   */
   /* iterator insert(const_iterator p, std::initializer_list<char>); */
 
   /* basic_kstring &erase(size_type pos = 0, size_type n = npos); */
@@ -172,8 +174,10 @@ public:
   /* basic_kstring &replace(size_type pos1, size_type n1, */
   /*                        const basic_kstring &str); */
   /* template <class T> */
-  /* basic_kstring &replace(size_type pos1, size_type n1, const T &t); // C++17 */
-  /* basic_kstring &replace(size_type pos1, size_type n1, const basic_kstring &str, */
+  /* basic_kstring &replace(size_type pos1, size_type n1, const T &t); // C++17
+   */
+  /* basic_kstring &replace(size_type pos1, size_type n1, const basic_kstring
+   * &str, */
   /*                        size_type pos2, size_type n2 = npos); // C++14 */
   /* template <class T> */
   /* basic_kstring &replace(size_type pos1, size_type n1, const T &t, */
@@ -181,19 +185,24 @@ public:
   /* basic_kstring &replace(size_type pos, size_type n1, const char *s, */
   /*                        size_type n2); */
   /* basic_kstring &replace(size_type pos, size_type n1, const char *s); */
-  /* basic_kstring &replace(size_type pos, size_type n1, size_type n2, char c); */
+  /* basic_kstring &replace(size_type pos, size_type n1, size_type n2, char c);
+   */
   /* basic_kstring &replace(const_iterator i1, const_iterator i2, */
   /*                        const basic_kstring &str); */
   /* template <class T> */
   /* basic_kstring &replace(const_iterator i1, const_iterator i2, */
   /*                        const T &t); // C++17 */
-  /* basic_kstring &replace(const_iterator i1, const_iterator i2, const char *s, */
+  /* basic_kstring &replace(const_iterator i1, const_iterator i2, const char *s,
+   */
   /*                        size_type n); */
-  /* basic_kstring &replace(const_iterator i1, const_iterator i2, const char *s); */
-  /* basic_kstring &replace(const_iterator i1, const_iterator i2, size_type n, */
+  /* basic_kstring &replace(const_iterator i1, const_iterator i2, const char
+   * *s); */
+  /* basic_kstring &replace(const_iterator i1, const_iterator i2, size_type n,
+   */
   /*                        char c); */
   /* template <class InputIterator> */
-  /* basic_kstring &replace(const_iterator i1, const_iterator i2, InputIterator j1, */
+  /* basic_kstring &replace(const_iterator i1, const_iterator i2, InputIterator
+   * j1, */
   /*                        InputIterator j2); */
   /* basic_kstring &replace(const_iterator i1, const_iterator i2, */
   /*                        std::initializer_list<char>); */
@@ -204,7 +213,8 @@ public:
   /* void swap(basic_kstring &str) noexcept( */
   /*     std::allocator_traits< */
   /*         allocator_type>::propagate_on_container_swap::value || */
-  /*     std::allocator_traits<allocator_type>::is_always_equal::value); // C++17 */
+  /*     std::allocator_traits<allocator_type>::is_always_equal::value); //
+   * C++17 */
 
   const char *c_str() const noexcept;
   /* const char *data() const noexcept; */
@@ -212,10 +222,12 @@ public:
 
   /* allocator_type get_allocator() const noexcept; */
 
-  /* size_type find(const basic_kstring &str, size_type pos = 0) const noexcept; */
+  /* size_type find(const basic_kstring &str, size_type pos = 0) const noexcept;
+   */
   /* template <class T> */
   /* size_type find(const T &t, size_type pos = 0) const; // C++17 */
-  /* size_type find(const char *s, size_type pos, size_type n) const noexcept; */
+  /* size_type find(const char *s, size_type pos, size_type n) const noexcept;
+   */
   /* size_type find(const char *s, size_type pos = 0) const noexcept; */
   /* size_type find(char c, size_type pos = 0) const noexcept; */
 
@@ -223,7 +235,8 @@ public:
   /*                 size_type pos = npos) const noexcept; */
   /* template <class T> */
   /* size_type rfind(const T &t, size_type pos = npos) const; // C++17 */
-  /* size_type rfind(const char *s, size_type pos, size_type n) const noexcept; */
+  /* size_type rfind(const char *s, size_type pos, size_type n) const noexcept;
+   */
   /* size_type rfind(const char *s, size_type pos = npos) const noexcept; */
   /* size_type rfind(char c, size_type pos = npos) const noexcept; */
 
@@ -233,7 +246,8 @@ public:
   /* size_type find_first_of(const T &t, size_type pos = 0) const; // C++17 */
   /* size_type find_first_of(const char *s, size_type pos, */
   /*                         size_type n) const noexcept; */
-  /* size_type find_first_of(const char *s, size_type pos = 0) const noexcept; */
+  /* size_type find_first_of(const char *s, size_type pos = 0) const noexcept;
+   */
   /* size_type find_first_of(char c, size_type pos = 0) const noexcept; */
 
   /* size_type find_last_of(const basic_kstring &str, */
@@ -243,22 +257,26 @@ public:
   /*                        size_type pos = npos) const noexcept; // C++17 */
   /* size_type find_last_of(const char *s, size_type pos, */
   /*                        size_type n) const noexcept; */
-  /* size_type find_last_of(const char *s, size_type pos = npos) const noexcept; */
+  /* size_type find_last_of(const char *s, size_type pos = npos) const noexcept;
+   */
   /* size_type find_last_of(char c, size_type pos = npos) const noexcept; */
 
   /* size_type find_first_not_of(const basic_kstring &str, */
   /*                             size_type pos = 0) const noexcept; */
   /* template <class T> */
-  /* size_type find_first_not_of(const T &t, size_type pos = 0) const; // C++17 */
+  /* size_type find_first_not_of(const T &t, size_type pos = 0) const; // C++17
+   */
   /* size_type find_first_not_of(const char *s, size_type pos, */
   /*                             size_type n) const noexcept; */
-  /* size_type find_first_not_of(const char *s, size_type pos = 0) const noexcept; */
+  /* size_type find_first_not_of(const char *s, size_type pos = 0) const
+   * noexcept; */
   /* size_type find_first_not_of(char c, size_type pos = 0) const noexcept; */
 
   /* size_type find_last_not_of(const basic_kstring &str, */
   /*                            size_type pos = npos) const noexcept; */
   /* template <class T> */
-  /* size_type find_last_not_of(const T &t, size_type pos = npos) const; // C++17 */
+  /* size_type find_last_not_of(const T &t, size_type pos = npos) const; //
+   * C++17 */
   /* size_type find_last_not_of(const char *s, size_type pos, */
   /*                            size_type n) const noexcept; */
   /* size_type find_last_not_of(const char *s, */
@@ -267,7 +285,8 @@ public:
 
   /* int compare(const basic_kstring &str) const noexcept; */
   /* template <class T> int compare(const T &t) const noexcept; // C++17 */
-  /* int compare(size_type pos1, size_type n1, const basic_kstring &str) const; */
+  /* int compare(size_type pos1, size_type n1, const basic_kstring &str) const;
+   */
   /* template <class T> */
   /* int compare(size_type pos1, size_type n1, const T &t) const; // C++17 */
   /* int compare(size_type pos1, size_type n1, const basic_kstring &str, */
@@ -277,14 +296,21 @@ public:
   /*             size_type n2 = npos) const; // C++17 */
   /* int compare(const char *s) const noexcept; */
   /* int compare(size_type pos1, size_type n1, const char *s) const; */
-  /* int compare(size_type pos1, size_type n1, const char *s, size_type n2) const; */
+  /* int compare(size_type pos1, size_type n1, const char *s, size_type n2)
+   * const; */
 
-  /* bool starts_with(std::basic_string_view<char> sv) const noexcept; // C++2a */
-  /* bool starts_with(char c) const noexcept;                          // C++2a */
-  /* bool starts_with(const char *s) const;                            // C++2a */
-  /* bool ends_with(std::basic_string_view<char> sv) const noexcept;   // C++2a */
-  /* bool ends_with(char c) const noexcept;                            // C++2a */
-  /* bool ends_with(const char *s) const;                              // C++2a */
+  /* bool starts_with(std::basic_string_view<char> sv) const noexcept; // C++2a
+   */
+  /* bool starts_with(char c) const noexcept;                          // C++2a
+   */
+  /* bool starts_with(const char *s) const;                            // C++2a
+   */
+  /* bool ends_with(std::basic_string_view<char> sv) const noexcept;   // C++2a
+   */
+  /* bool ends_with(char c) const noexcept;                            // C++2a
+   */
+  /* bool ends_with(const char *s) const;                              // C++2a
+   */
 
   /* bool __invariants() const; */
 
@@ -305,15 +331,16 @@ private:
   public:
     ControlBlock(pointer p, size_type len, size_type cap);
 
-    ControlBlock(const ControlBlock &) = delete;
+    ControlBlock(const ControlBlock &other);
     ControlBlock &operator=(const ControlBlock &) = delete;
     ControlBlock(ControlBlock &&) = delete;
     ControlBlock &operator=(ControlBlock &&p) = delete;
     ~ControlBlock();
 
-    void acquire();
+    ControlBlock *acquire();
     void release();
     pointer get() const;
+    size_type count() const;
   };
 
   struct Short {
@@ -333,7 +360,7 @@ private:
 
   struct Long {
     // TODO: use allocator traits instead
-    ControlBlock* m_cbptr;
+    ControlBlock *m_cbptr;
     size_type m_len;
     size_type m_cap;
   };
@@ -372,6 +399,8 @@ private:
                                const allocator_type &a, MidTag);
   void construct_basic_kstring(const char *s, size_type len, size_type cap,
                                const allocator_type &a, LongTag);
+
+  void mutable_cb();
 };
 template <typename Alloc = std::allocator<char>>
 using kstring = basic_kstring<Alloc>;
@@ -390,7 +419,6 @@ template <class Alloc> basic_kstring<Alloc>::~basic_kstring() {
   } else if (cat == Category::kLong) {
     m_members.m_long.m_cbptr->release();
   }
-
 }
 
 template <class Alloc>
@@ -435,7 +463,7 @@ void basic_kstring<Alloc>::construct_basic_kstring(const char *s, size_type len,
   for (size_type i = 0; i < len; i++) {
     std::construct_at(m_members.m_mid.m_ptr + i, s[i]);
   }
-    std::construct_at(m_members.m_mid.m_ptr + len, '\0');
+  std::construct_at(m_members.m_mid.m_ptr + len, '\0');
 
   set_length(len, Category::kMid);
   set_capacity(cap);
@@ -454,24 +482,44 @@ void basic_kstring<Alloc>::construct_basic_kstring(const char *s, size_type len,
   std::construct_at(ptr + len, '\0');
   set_length(len, Category::kLong);
   set_capacity(cap);
-  m_members.m_long.m_cbptr = new ControlBlock(ptr, len + 1,cap);
+  m_members.m_long.m_cbptr = new ControlBlock(ptr, len + 1, cap);
 }
 
 template <class Alloc> uint8_t &basic_kstring<Alloc>::msbyte() {
   return *reinterpret_cast<uint8_t *>(this + 23);
 }
 
+template <class Alloc>
+basic_kstring<Alloc>::basic_kstring(const basic_kstring &str) {
+  auto cat = str.category();
+  switch (cat) {
+    case Category::kShort:
+      assert(str.length() < __max_short_size);
+      construct_basic_kstring(str.c_str(),str.length(), allocator_type(), short_tag);
+      break;
+    case Category::kMid:
+      construct_basic_kstring(str.c_str(), str.length(), str.capacity(), allocator_type(), mid_tag);
+      break;
+    case Category::kLong:
+      m_members.m_long.m_cap = str.m_members.m_long.m_cap;
+      m_members.m_long.m_cbptr = str.m_members.m_long.m_cbptr->acquire();
+      m_members.m_long.m_len = str.m_members.m_long.m_len;
+      break;
+  }
+
+}
+
 /** Public Functions *******************************************************/
 
-template<class Alloc>
-const char* basic_kstring<Alloc>::c_str() const noexcept {
-  switch(category())  {
-    case Category::kShort:
-      return m_members.m_short.m_data;
-    case Category::kMid:
-      return m_members.m_mid.m_ptr;
-    case Category::kLong:
-      return m_members.m_long.m_cbptr->get();
+template <class Alloc>
+const char *basic_kstring<Alloc>::c_str() const noexcept {
+  switch (category()) {
+  case Category::kShort:
+    return m_members.m_short.m_data;
+  case Category::kMid:
+    return m_members.m_mid.m_ptr;
+  case Category::kLong:
+    return m_members.m_long.m_cbptr->get();
   }
 }
 
@@ -494,6 +542,25 @@ basic_kstring<Alloc>::length() const noexcept {
   }
 }
 
+template <class Alloc>
+typename basic_kstring<Alloc>::const_reference basic_kstring<Alloc>::operator[](
+    typename basic_kstring<Alloc>::size_type pos) const {
+  return c_str()[pos];
+};
+
+template <class Alloc>
+typename basic_kstring<Alloc>::reference
+basic_kstring<Alloc>::operator[](typename basic_kstring<Alloc>::size_type pos) {
+  if (category() == Category::kLong) mutable_cb();
+  switch (category()) {
+  case Category::kShort:
+    return m_members.m_short.m_data[pos];
+  case Category::kMid:
+    return m_members.m_mid.m_ptr[pos];
+  case Category::kLong:
+    return m_members.m_long.m_cbptr->get()[pos];
+  }
+}
 
 /** Helpers ****************************************************************/
 
@@ -590,13 +657,35 @@ basic_kstring<Alloc>::get_category(size_type cap) {
   }
 }
 
+template <class Alloc>
+void basic_kstring<Alloc>::mutable_cb() {
+  assert(this->category() == Category::kLong);
+
+  // do not need to do anything if you are holding the only reference
+  if (m_members.m_long.m_cbptr->count() == 1) return;
+
+  auto prev_cb = m_members.m_long.m_cbptr;
+  m_members.m_long.m_cbptr = new ControlBlock(*prev_cb);
+  prev_cb->release();
+}
 
 /** Control Block **********************************************************/
 
 template <class Alloc>
-basic_kstring<Alloc>::ControlBlock::ControlBlock(pointer p, size_type len,size_type cap)
-    : m_ptr{p}, m_count{0}, m_len{len},m_cap{cap} {
+basic_kstring<Alloc>::ControlBlock::ControlBlock(pointer p, size_type len,
+                                                 size_type cap)
+    : m_ptr{p}, m_count{0}, m_len{len}, m_cap{cap} {
   acquire();
+}
+
+template <class Alloc>
+basic_kstring<Alloc>::ControlBlock::ControlBlock(const ControlBlock &other)
+    : m_ptr{nullptr}, m_count{1}, m_len{other.m_len}, m_cap{other.m_cap} {
+  m_ptr = allocator_type().allocate(m_cap);
+  for (size_type i = 0; i < m_len; i++) {
+    std::construct_at(m_ptr + i, other.m_ptr[i]);
+  }
+  std::construct_at(m_ptr + m_len, '\0');
 }
 
 template <class Alloc> basic_kstring<Alloc>::ControlBlock::~ControlBlock() {
@@ -608,8 +697,11 @@ template <class Alloc> basic_kstring<Alloc>::ControlBlock::~ControlBlock() {
   allocator_type().deallocate(m_ptr, m_cap);
 }
 
-template <class Alloc> void basic_kstring<Alloc>::ControlBlock::acquire() {
+template <class Alloc>
+typename basic_kstring<Alloc>::ControlBlock *
+basic_kstring<Alloc>::ControlBlock::acquire() {
   m_count++;
+  return this;
 }
 
 template <class Alloc>
@@ -618,10 +710,17 @@ k::basic_kstring<Alloc>::ControlBlock::get() const {
   return m_ptr;
 }
 
+template <class Alloc>
+typename k::basic_kstring<Alloc>::size_type
+k::basic_kstring<Alloc>::ControlBlock::count() const {
+  return m_count;
+}
+
 template <class Alloc> void basic_kstring<Alloc>::ControlBlock::release() {
   m_count--;
   if (m_count == 0) {
     delete this;
   }
 }
+
 } // namespace k

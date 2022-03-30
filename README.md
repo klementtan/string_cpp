@@ -23,5 +23,5 @@ bazel build --cxxopt='-std=c++20' kstring
 
 **Test**
 ```shell
-bazel test --test_output=streamed --cxxopt='-std=c++20' kstring_test 
+bazel test --test_output=streamed kstring_test 
 ```
