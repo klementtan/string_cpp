@@ -23,8 +23,8 @@ public:
   typedef std::allocator_traits<allocator_type> __alloc_traits;
   typedef typename __alloc_traits::size_type size_type;
   /* typedef typename __alloc_traits::difference_type difference_type; */
-  typedef typename __alloc_traits::reference reference;
-  typedef typename __alloc_traits::const_reference const_reference;
+  typedef char& reference;
+  typedef const char&  const_reference;
   typedef typename __alloc_traits::pointer pointer;
   typedef typename __alloc_traits::const_pointer const_pointer;
   typedef pointer iterator;
@@ -404,6 +404,8 @@ private:
 template <typename Alloc = std::allocator<char>>
 using kstring = basic_kstring<Alloc>;
 
+typedef basic_kstring<std::allocator<char>> kastring;
+
 /** Constructors ***********************************************************/
 
 template <class Alloc> basic_kstring<Alloc>::~basic_kstring() {
@@ -492,20 +494,21 @@ template <class Alloc>
 basic_kstring<Alloc>::basic_kstring(const basic_kstring &str) {
   auto cat = str.category();
   switch (cat) {
-    case Category::kShort:
-      assert(str.length() < __max_short_size);
-      construct_basic_kstring(str.c_str(),str.length(), allocator_type(), short_tag);
-      break;
-    case Category::kMid:
-      construct_basic_kstring(str.c_str(), str.length(), str.capacity(), allocator_type(), mid_tag);
-      break;
-    case Category::kLong:
-      m_members.m_long.m_cap = str.m_members.m_long.m_cap;
-      m_members.m_long.m_cbptr = str.m_members.m_long.m_cbptr->acquire();
-      m_members.m_long.m_len = str.m_members.m_long.m_len;
-      break;
+  case Category::kShort:
+    assert(str.length() < __max_short_size);
+    construct_basic_kstring(str.c_str(), str.length(), allocator_type(),
+                            short_tag);
+    break;
+  case Category::kMid:
+    construct_basic_kstring(str.c_str(), str.length(), str.capacity(),
+                            allocator_type(), mid_tag);
+    break;
+  case Category::kLong:
+    m_members.m_long.m_cap = str.m_members.m_long.m_cap;
+    m_members.m_long.m_cbptr = str.m_members.m_long.m_cbptr->acquire();
+    m_members.m_long.m_len = str.m_members.m_long.m_len;
+    break;
   }
-
 }
 
 /** Public Functions *******************************************************/
@@ -550,7 +553,8 @@ typename basic_kstring<Alloc>::const_reference basic_kstring<Alloc>::operator[](
 template <class Alloc>
 typename basic_kstring<Alloc>::reference
 basic_kstring<Alloc>::operator[](typename basic_kstring<Alloc>::size_type pos) {
-  if (category() == Category::kLong) mutable_cb();
+  if (category() == Category::kLong)
+    mutable_cb();
   switch (category()) {
   case Category::kShort:
     return m_members.m_short.m_data[pos];
@@ -656,12 +660,12 @@ basic_kstring<Alloc>::get_category(size_type cap) {
   }
 }
 
-template <class Alloc>
-void basic_kstring<Alloc>::mutable_cb() {
+template <class Alloc> void basic_kstring<Alloc>::mutable_cb() {
   assert(this->category() == Category::kLong);
 
   // do not need to do anything if you are holding the only reference
-  if (m_members.m_long.m_cbptr->count() == 1) return;
+  if (m_members.m_long.m_cbptr->count() == 1)
+    return;
 
   auto prev_cb = m_members.m_long.m_cbptr;
   m_members.m_long.m_cbptr = new ControlBlock(*prev_cb);
